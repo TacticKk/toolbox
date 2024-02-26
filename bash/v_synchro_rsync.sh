@@ -1,32 +1,9 @@
 #!/bin/bash
 
-##  Programme    : v_rsync_synchro.sh
-##  Auteur       : BOURDAREL Antoine (TME Solutec)
-##  Date         : 21/02/2024
-##
-##  Description  : Copie des fichiers d'un serveur windows à un serveur linux
-##
-##  Paramètres   : aucun
-##
-##  Retour       : 1 en cas d'erreur
-##                 0 sinon
-##                 8 paramètres incorrect
-##
-##  Modifications ulterieures :
-## Date        Par                             Objet
-## ----------- ------------------------------- ----------------------------------------------------------------------------------
-##
-##
-##
-
-#--
-#-- Verifications
-#--
-
 if [[ $# -ne 3 ]]; then
-    print "ERREUR ERREUR ERREUR ERREUR"
-    print "Le nombre de paramètres est incorrect. Paramètres attendus : 3"
-    print "ERREUR ERREUR ERREUR ERREUR"
+    echo "ERREUR ERREUR ERREUR ERREUR"
+    echo "Le nombre de paramètres est incorrect. Paramètres attendus : 3"
+    echo "ERREUR ERREUR ERREUR ERREUR"
     exit 8
 fi
 
@@ -41,4 +18,10 @@ echo "password : $password_file"
 echo "===================="
 
 
-rsync -avz --password-file=$password_file $chemin_source $chemin_cible
+value=$(rsync -avz --password-file=$password_file $chemin_source $chemin_cible --itemize-changes --out-format="%n" | awk '/\/$/ {print substr($0, 1, length($0)-1)}')
+
+for dossier in $value
+do
+    chown -R wildfly: $chemin_cible/$dossier
+    chmod -R 700 $chemin_cible/$dossier
+done
